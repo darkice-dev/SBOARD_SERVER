@@ -49,4 +49,8 @@ public class Debug {
     public void warning(String messages) {
         write(messages, "[WARNING]");
     }
+
+    public void debug(String mesage) {
+        write(mesage, "[DEBUG]");
+    }
 }

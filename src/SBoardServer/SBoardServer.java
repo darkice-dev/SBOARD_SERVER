@@ -2,6 +2,7 @@ package SBoardServer;
 
 
 import SBoardServer.helpers.IOHelper;
+import SBoardServer.helpers.LoggerHelper;
 import SBoardServer.managers.StorageManager;
 import SBoardServer.utils.MySQL;
 import SBoardServer.utils.ServerConfig;
@@ -19,6 +20,14 @@ public class SBoardServer {
         serverConfig = new ServerConfig("config", IOHelper.WORKING_DIR);
         mySQL = new MySQL();
         storageManager = new StorageManager();
+        LoggerHelper loggerHelper = new LoggerHelper();
+        loggerHelper.info("qq");
+        LoggerHelper.info("adwwad");
+        LoggerHelper.info("q");
+        LoggerHelper.error("ERROR");
+        LoggerHelper.error("ERROR X2");
+        LoggerHelper.warning("warning");
+        LoggerHelper.warning("warning x2");
     }
 
     public static void main(String[] args) {

@@ -12,13 +12,14 @@ public class StorageManager {
     public StorageManager() {
         try {
             connection = SBoardServer.instance.getMySQL().getConnection();
+            prepareDB();
         } catch (SQLException e) {
             System.exit(-1);
             //todo logging;
         }
     }
 
-    public void prepareDB() {
-        //todo
+    private void prepareDB() {
+
     }
 }
