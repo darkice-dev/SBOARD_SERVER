@@ -166,9 +166,25 @@ public class StorageManager {
 
             LoggerHelper.info("Database preparation completed successfully");
         } catch (SQLException e) {
-            LoggerHelper.error("Error while preparing DB...");
+            LoggerHelper.error("Error while preparing DB... \n" + e);
             e.printStackTrace();
             System.exit(0);
         }
+    }
+
+    private void close(Statement statement) {
+        mySQL.getExecutor().submit(new Runnable() {
+            @Override
+            public void run() {
+                if(statement != null) {
+                    try {
+                        statement.close();
+                    } catch (SQLException e) {
+                        LoggerHelper.error("SQL Error. Statement can't be closed. \n" + e);
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
     }
 }
