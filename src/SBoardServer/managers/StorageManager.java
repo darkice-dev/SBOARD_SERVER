@@ -1,12 +1,12 @@
 package SBoardServer.managers;
 
 import SBoardServer.SBoardServer;
+import SBoardServer.domain.Category;
 import SBoardServer.helpers.LoggerHelper;
 import SBoardServer.utils.MySQL;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.HashMap;
 
 public class StorageManager {
 
@@ -170,6 +170,49 @@ public class StorageManager {
             e.printStackTrace();
             System.exit(0);
         }
+    }
+
+    public Category getCategoryFromId(int id) {
+        PreparedStatement statement = null;
+        Category category = null;
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM categories WHERE id=?");
+            statement.setInt(1, id);
+            ResultSet set = statement.executeQuery();
+            if(set.next()) {
+                int cId = set.getInt("id");
+                String name = set.getString("name");
+                category = new Category(cId, name);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting category \n" + e);
+            e.printStackTrace();
+        }
+        finally {
+            close(statement);
+        }
+        return category;
+    }
+
+    public HashMap<String, Category> getCategories() {
+        HashMap<String, Category> categories = new HashMap<>();
+        PreparedStatement statement = null;
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM categories");
+            ResultSet set = statement.executeQuery();
+            while (set.next()) {
+                int id = set.getInt("id");
+                String name = set.getString("name");
+                Category category = new Category(id, name);
+                categories.put(name, category);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting category \n" + e);
+            e.printStackTrace();
+        } finally {
+            close(statement);
+        }
+        return categories;
     }
 
     private void close(Statement statement) {
