@@ -1,12 +1,12 @@
 package SBoardServer.utils;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.text.ParseException;
 
 public class ServerConfig extends ConfigUtils{
 
@@ -17,16 +17,14 @@ public class ServerConfig extends ConfigUtils{
 
     public ServerConfig(String name, Path path) {
         super(name, path);
-        JSONParser parser = new JSONParser();
+        JsonParser parser = new JsonParser();
         try {
-            JSONObject jsonObject = (JSONObject) parser.parse(new FileReader(getFile().toString()));
-            host = (String) jsonObject.get("host");
-            user = (String) jsonObject.get("user");
-            password = (String) jsonObject.get("password");
-            database = (String) jsonObject.get("database");
+            JsonObject jsonObject = (JsonObject) parser.parse(new FileReader(getFile().toString()));
+            host = jsonObject.get("host").getAsString();
+            user = jsonObject.get("user").getAsString();
+            password = jsonObject.get("password").getAsString();
+            database = jsonObject.get("database").getAsString();
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
             e.printStackTrace();
         }
     }
