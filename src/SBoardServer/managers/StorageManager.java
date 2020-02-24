@@ -2,6 +2,7 @@ package SBoardServer.managers;
 
 import SBoardServer.SBoardServer;
 import SBoardServer.domain.Category;
+import SBoardServer.domain.Company;
 import SBoardServer.helpers.LoggerHelper;
 import SBoardServer.utils.MySQL;
 
@@ -21,13 +22,14 @@ public class StorageManager {
         try {
             LoggerHelper.info("Preparing DataBase ....");
             Statement statement = mySQL.getConnection().createStatement();
-            statement.execute("CREATE TABLE IF NOT EXISTS `company` (`id` INT NOT NULL AUTO_INCREMENT," +
+            statement.execute("CREATE TABLE IF NOT EXISTS `companies` (`id` INT NOT NULL AUTO_INCREMENT," +
                     " `name` VARCHAR(128) NOT NULL," +
                     " `desc` VARCHAR(256) NOT NULL," +
                     " `address` VARCHAR(128) NOT NULL," +
                     " `email` VARCHAR(32) NOT NULL," +
                     " `phone` VARCHAR(16) NOT NULL," +
                     " `rate` FLOAT NOT NULL," +
+                    " `created_time` DATETIME NOT NULL," +
                     " PRIMARY KEY (`id`))");
 
             statement.execute("CREATE TABLE IF NOT EXISTS `employee` (" +
@@ -170,6 +172,87 @@ public class StorageManager {
             e.printStackTrace();
             System.exit(0);
         }
+    }
+
+    public void createCompany(int id, String name, String desc, String address, String email, String phone, float rate, long createdTime) {
+        mySQL.getExecutor().submit(new Runnable() {
+            @Override
+            public void run() {
+                PreparedStatement statement = null;
+                try {
+                    statement = mySQL.getConnection().prepareStatement("INSERT INTO companies (id, name, desc, address, email, phone, rate, created_time) VALUES " +
+                            "(?, ?, ?, ?, ?, ?, ?, ?)");
+                    statement.setInt(1, id);
+                    statement.setString(2, name);
+                    statement.setString(3, desc);
+                    statement.setString(4, address);
+                    statement.setString(5, email);
+                    statement.setString(6, phone);
+                    statement.setFloat(7, rate);
+                    statement.setLong(8, createdTime);
+                    statement.execute();
+                } catch (SQLException e) {
+                    LoggerHelper.error("Error while creating company: \n" + e);
+                    e.printStackTrace();
+                } finally {
+                    close(statement);
+                }
+            }
+        });
+    }
+
+    public Company getCompanyFromId(int id) {
+        PreparedStatement statement = null;
+        Company company = null;
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM companies WHERE id=?");
+            statement.setInt(1, id);
+            ResultSet set = statement.executeQuery();
+            if(set.next()) {
+                int cId = set.getInt("id");
+                String name = set.getString("name");
+                String desc = set.getString("desc");
+                String address = set.getString("address");
+                String email = set.getString("email");
+                String phone = set.getString("phone");
+                float rate = set.getFloat("rate");
+                long createdTime = set.getLong("created_time");
+                company = new Company(cId, name, desc, address, email, phone, rate, createdTime);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting companies \n" + e);
+            e.printStackTrace();
+        }
+        finally {
+            close(statement);
+        }
+        return company;
+    }
+
+    public HashMap<String, Company> getCompanies() {
+        HashMap<String, Company> companies = new HashMap<>();
+        PreparedStatement statement = null;
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM companies");
+            ResultSet set = statement.executeQuery();
+            while (set.next()) {
+                int cId = set.getInt("id");
+                String name = set.getString("name");
+                String desc = set.getString("desc");
+                String address = set.getString("address");
+                String email = set.getString("email");
+                String phone = set.getString("phone");
+                float rate = set.getFloat("rate");
+                long createdTime = set.getLong("created_time");
+                Company company = new Company(cId, name, desc, address, email, phone, rate, createdTime);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting companies \n" + e);
+            e.printStackTrace();
+        } finally {
+            close(statement);
+        }
+        return companies;
     }
 
     public Category getCategoryFromId(int id) {
