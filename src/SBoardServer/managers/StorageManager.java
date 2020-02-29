@@ -1,9 +1,7 @@
 package SBoardServer.managers;
 
 import SBoardServer.SBoardServer;
-import SBoardServer.domain.Category;
-import SBoardServer.domain.Company;
-import SBoardServer.domain.User;
+import SBoardServer.domain.*;
 import SBoardServer.helpers.LoggerHelper;
 import SBoardServer.utils.MySQL;
 
@@ -33,7 +31,7 @@ public class StorageManager {
                     " `created_time` DATETIME NOT NULL," +
                     " PRIMARY KEY (`id`))");
 
-            statement.execute("CREATE TABLE IF NOT EXISTS `employee` (" +
+            statement.execute("CREATE TABLE IF NOT EXISTS `employees` (" +
                     " `id` INT NOT NULL AUTO_INCREMENT," +
                     " `name` VARCHAR(16) NOT NULL," +
                     " `sname` VARCHAR(16) NOT NULL," +
@@ -43,6 +41,7 @@ public class StorageManager {
                     " `education` VARCHAR(32) NOT NULL," +
                     " `activities` VARCHAR(128) NOT NULL," +
                     " `rate` FLOAT NOT NULL," +
+                    " `created_time` DATETIME NOT NULL," +
                     " `company_id` INT NOT NULL," +
                     " PRIMARY KEY (`id`)," +
                     " INDEX `fk_employee_company_idx` (`company_id` ASC) VISIBLE," +
@@ -325,7 +324,7 @@ public class StorageManager {
             public void run() {
                 PreparedStatement statement = null;
                 try {
-                    statement = mySQL.getConnection().prepareStatement("INSERT INTO users (id, name) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                    statement = mySQL.getConnection().prepareStatement("INSERT INTO users (id, name, sname, patronymic, email, phone, address, created_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
                     statement.setInt(1, id);
                     statement.setString(2, name);
                     statement.setString(3, sName);
@@ -397,6 +396,169 @@ public class StorageManager {
             close(statement);
         }
         return users;
+    }
+
+    public void createEmployee(int id, String name, String sName, String patronymic, String email, String phone, String address, String education, String activities, float rate, long createdTime, int companyId) {
+        mySQL.getExecutor().submit(new Runnable() {
+            @Override
+            public void run() {
+                PreparedStatement statement = null;
+                try {
+                    statement = mySQL.getConnection().prepareStatement("INSERT INTO employees (id, name, sname, patronymic, email, phone, address, education, activities, rate, created_time, company_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    statement.setInt(1, id);
+                    statement.setString(2, name);
+                    statement.setString(3, sName);
+                    statement.setString(4, patronymic);
+                    statement.setString(5, email);
+                    statement.setString(6, phone);
+                    statement.setString(7, address);
+                    statement.setString(8, education);
+                    statement.setString(9, activities);
+                    statement.setFloat(10, rate);
+                    statement.setLong(11, createdTime);
+                    statement.setInt(12, companyId);
+                    statement.execute();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } finally {
+                    close(statement);
+                }
+            }
+        });
+    }
+
+    public Employee getEmployeeFromId(int id) {
+        PreparedStatement statement = null;
+        Employee employee = null;
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM employees WHERE id=?");
+            statement.setInt(1, id);
+            ResultSet set = statement.executeQuery();
+            if(set.next()) {
+                int uId = set.getInt("id");
+                String name = set.getString("name");
+                String sName = set.getString("sname");
+                String patronymic = set.getString("patronymic");
+                String email = set.getString("email");
+                String phone = set.getString("phone");
+                String address = set.getString("address");
+                String education = set.getString("education");
+                String activities = set.getString("activities");
+                float rate = set.getFloat("rate");
+                long createdTime = set.getLong("created_time");
+                int companyId = set.getInt("company_id");
+                employee = new Employee(uId, name, sName, patronymic, email, phone, address, education, activities, rate, createdTime, companyId);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting employee (id =" + id +") \n" + e);
+            e.printStackTrace();
+        }
+        finally {
+            close(statement);
+        }
+        return employee;
+    }
+
+    public HashMap<String, Employee> getEmployees() {
+        HashMap<String, Employee> employees = new HashMap<>();
+        PreparedStatement statement = null;
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM employees");
+            ResultSet set = statement.executeQuery();
+            while (set.next()) {
+                int uId = set.getInt("id");
+                String name = set.getString("name");
+                String sName = set.getString("sname");
+                String patronymic = set.getString("patronymic");
+                String email = set.getString("email");
+                String phone = set.getString("phone");
+                String address = set.getString("address");
+                String education = set.getString("education");
+                String activities = set.getString("activities");
+                float rate = set.getFloat("rate");
+                long createdTime = set.getLong("created_time");
+                int companyId = set.getInt("company_id");
+                Employee employee = new Employee(uId, name, sName, patronymic, email, phone, address, education, activities, rate, createdTime, companyId);
+                employees.put(name, employee);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting employees \n" + e);
+            e.printStackTrace();
+        } finally {
+            close(statement);
+        }
+        return employees;
+    }
+
+    public void createService(int id, String name, double price, int employeeId, int categories_id) {
+        mySQL.getExecutor().submit(new Runnable() {
+            @Override
+            public void run() {
+                PreparedStatement statement = null;
+                try {
+                    statement = mySQL.getConnection().prepareStatement("INSERT INTO services (id, name, price, employee_id, categories_id) VALUES (?, ?, ?, ?, ?)");
+                    statement.setInt(1, id);
+                    statement.setString(2, name);
+                    statement.setDouble(3, price);
+                    statement.setInt(4, employeeId);
+                    statement.setInt(5, categories_id);
+                    statement.execute();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } finally {
+                    close(statement);
+                }
+            }
+        });
+    }
+
+    public Service getServiceFromId(int id) {
+        PreparedStatement statement = null;
+        Service service = null;
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM services WHERE id=?");
+            statement.setInt(1, id);
+            ResultSet set = statement.executeQuery();
+            if(set.next()) {
+                int sId = set.getInt("id");
+                String name = set.getString("name");
+                double price = set.getDouble("price");
+                int employeeId = set.getInt("employee_id");
+                int categoryId = set.getInt("categories_id");
+                service = new Service(sId, name, price, employeeId, categoryId);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting service \n" + e);
+            e.printStackTrace();
+        }
+        finally {
+            close(statement);
+        }
+        return service;
+    }
+
+    public HashMap<String, Service> getServices() {
+        HashMap<String, Service> services = new HashMap<>();
+        PreparedStatement statement = null;
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM services");
+            ResultSet set = statement.executeQuery();
+            while (set.next()) {
+                int sId = set.getInt("id");
+                String name = set.getString("name");
+                double price = set.getDouble("price");
+                int employeeId = set.getInt("employee_id");
+                int categoryId = set.getInt("categories_id");
+                Service service = new Service(sId, name, price, employeeId, categoryId);
+                services.put(name, service);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting services \n" + e);
+            e.printStackTrace();
+        } finally {
+            close(statement);
+        }
+        return services;
     }
 
     private void close(Statement statement) {
