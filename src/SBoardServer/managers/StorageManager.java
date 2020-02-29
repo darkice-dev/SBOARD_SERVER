@@ -3,6 +3,7 @@ package SBoardServer.managers;
 import SBoardServer.SBoardServer;
 import SBoardServer.domain.Category;
 import SBoardServer.domain.Company;
+import SBoardServer.domain.User;
 import SBoardServer.helpers.LoggerHelper;
 import SBoardServer.utils.MySQL;
 
@@ -104,6 +105,7 @@ public class StorageManager {
                     "  `email` VARCHAR(32) NOT NULL," +
                     "  `phone` VARCHAR(16) NOT NULL," +
                     "  `address` VARCHAR(64) NOT NULL," +
+                    " `created_time` DATETIME NOT NULL," +
                     "  PRIMARY KEY (`id`))");
 
             statement.execute("CREATE TABLE IF NOT EXISTS `timetable` (" +
@@ -315,6 +317,86 @@ public class StorageManager {
             close(statement);
         }
         return categories;
+    }
+
+    public void createUser(int id, String name, String sName, String patronymic, String email, String phone, String address, long createdTime) {
+        mySQL.getExecutor().submit(new Runnable() {
+            @Override
+            public void run() {
+                PreparedStatement statement = null;
+                try {
+                    statement = mySQL.getConnection().prepareStatement("INSERT INTO users (id, name) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                    statement.setInt(1, id);
+                    statement.setString(2, name);
+                    statement.setString(3, sName);
+                    statement.setString(4, patronymic);
+                    statement.setString(5, email);
+                    statement.setString(6, phone);
+                    statement.setString(7, address);
+                    statement.setLong(8, createdTime);
+                    statement.execute();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } finally {
+                    close(statement);
+                }
+            }
+        });
+    }
+
+    public User getUserFromId(int id) {
+        PreparedStatement statement = null;
+        User user = null;
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM users WHERE id=?");
+            statement.setInt(1, id);
+            ResultSet set = statement.executeQuery();
+            if(set.next()) {
+                int uId = set.getInt("id");
+                String name = set.getString("name");
+                String sName = set.getString("sname");
+                String patronymic = set.getString("patronymic");
+                String email = set.getString("email");
+                String phone = set.getString("phone");
+                String address = set.getString("address");
+                long createdTime = set.getLong("created_time");
+                user = new User(uId, name, sName, patronymic, email, phone, address, createdTime);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting user (id =" + id +") \n" + e);
+            e.printStackTrace();
+        }
+        finally {
+            close(statement);
+        }
+        return user;
+    }
+
+    public HashMap<String, User> getUsers() {
+        HashMap<String, User> users = new HashMap<>();
+        PreparedStatement statement = null;
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM users");
+            ResultSet set = statement.executeQuery();
+            while (set.next()) {
+                int uId = set.getInt("id");
+                String name = set.getString("name");
+                String sName = set.getString("sname");
+                String patronymic = set.getString("patronymic");
+                String email = set.getString("email");
+                String phone = set.getString("phone");
+                String address = set.getString("address");
+                long createdTime = set.getLong("created_time");
+                User user = new User(uId, name, sName, patronymic, email, phone, address, createdTime);
+                users.put(name, user);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting users \n" + e);
+            e.printStackTrace();
+        } finally {
+            close(statement);
+        }
+        return users;
     }
 
     private void close(Statement statement) {
