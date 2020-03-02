@@ -44,12 +44,12 @@ public class StorageManager {
                     " `created_time` DATETIME NOT NULL," +
                     " `company_id` INT NOT NULL," +
                     " PRIMARY KEY (`id`)," +
-                    " INDEX `fk_employee_company_idx` (`company_id` ASC) VISIBLE," +
-                    " CONSTRAINT `fk_employee_company`" +
+//                    " INDEX `fk_employee_company_idx` (`company_id` ASC) VISIBLE," +
+//                    " CONSTRAINT `fk_employee_company`" +
                     " FOREIGN KEY (`company_id`)" +
-                    " REFERENCES `sboard_db`.`company` (`id`)" +
-                    " ON DELETE NO ACTION" +
-                    " ON UPDATE NO ACTION)");
+                    " REFERENCES `companies` (`id`))");
+//                    " ON DELETE NO ACTION" +
+//                    " ON UPDATE NO ACTION)");
 
             statement.execute("CREATE TABLE IF NOT EXISTS `services` (" +
                     "  `id` INT NOT NULL AUTO_INCREMENT," +
@@ -58,18 +58,18 @@ public class StorageManager {
                     "  `employee_id` INT NOT NULL," +
                     "  `categories_id` INT NOT NULL," +
                     "  PRIMARY KEY (`id`)," +
-                    "  INDEX `fk_services_employee1_idx` (`employee_id` ASC) VISIBLE," +
-                    "  INDEX `fk_services_categories1_idx` (`categories_id` ASC) VISIBLE," +
-                    "  CONSTRAINT `fk_services_employee1`" +
+//                    "  INDEX `fk_services_employee1_idx` (`employee_id` ASC) VISIBLE," +
+//                    "  INDEX `fk_services_categories1_idx` (`categories_id` ASC) VISIBLE," +
+//                    "  CONSTRAINT `fk_services_employee1`" +
                     "    FOREIGN KEY (`employee_id`)" +
-                    "    REFERENCES `sboard_db`.`employee` (`id`)" +
-                    "    ON DELETE NO ACTION" +
-                    "    ON UPDATE NO ACTION," +
-                    "  CONSTRAINT `fk_services_categories1`" +
-                    "    FOREIGN KEY (`categories_id`)" +
-                    "    REFERENCES `sboard_db`.`categories` (`id`)" +
-                    "    ON DELETE NO ACTION" +
-                    "    ON UPDATE NO ACTION)");
+                    "    REFERENCES `employees` (`id`))");
+//                    "    ON DELETE NO ACTION" +
+//                    "    ON UPDATE NO ACTION," +
+//                    "  CONSTRAINT `fk_services_categories1`" +
+//                    "    FOREIGN KEY (`categories_id`)" +
+//                    "    REFERENCES `sboard_db`.`categories` (`id`)" +
+//                    "    ON DELETE NO ACTION" +
+//                    "    ON UPDATE NO ACTION)");
 
             statement.execute("CREATE TABLE IF NOT EXISTS `categories` (" +
                     "  `id` INT NOT NULL AUTO_INCREMENT," +
@@ -83,18 +83,18 @@ public class StorageManager {
                     "  `services_id` INT NOT NULL," +
                     "  `users_id` INT NOT NULL," +
                     "  PRIMARY KEY (`id`)," +
-                    "  INDEX `fk_reviews_services1_idx` (`services_id` ASC) VISIBLE," +
-                    "  INDEX `fk_reviews_users1_idx` (`users_id` ASC) VISIBLE," +
-                    "  CONSTRAINT `fk_reviews_services1`" +
+//                    "  INDEX `fk_reviews_services1_idx` (`services_id` ASC) VISIBLE," +
+//                    "  INDEX `fk_reviews_users1_idx` (`users_id` ASC) VISIBLE," +
+//                    "  CONSTRAINT `fk_reviews_services1`" +
                     "    FOREIGN KEY (`services_id`)" +
-                    "    REFERENCES `sboard_db`.`services` (`id`)" +
-                    "    ON DELETE NO ACTION" +
-                    "    ON UPDATE NO ACTION," +
-                    "  CONSTRAINT `fk_reviews_users1`" +
-                    "    FOREIGN KEY (`users_id`)" +
-                    "    REFERENCES `sboard_db`.`users` (`id`)" +
-                    "    ON DELETE NO ACTION" +
-                    "    ON UPDATE NO ACTION)");
+                    "    REFERENCES `services` (`id`))");
+//                    "    ON DELETE NO ACTION" +
+//                    "    ON UPDATE NO ACTION," +
+//                    "  CONSTRAINT `fk_reviews_users1`" +
+//                    "    FOREIGN KEY (`users_id`)" +
+//                    "    REFERENCES `sboard_db`.`users` (`id`)" +
+//                    "    ON DELETE NO ACTION" +
+//                    "    ON UPDATE NO ACTION)");
 
             statement.execute("CREATE TABLE IF NOT EXISTS `users` (" +
                     "  `id` INT NOT NULL AUTO_INCREMENT," +
@@ -114,58 +114,58 @@ public class StorageManager {
                     "  `services_id` INT NOT NULL," +
                     "  `users_id` INT NULL," +
                     "  PRIMARY KEY (`id`)," +
-                    "  INDEX `fk_timetable_services1_idx` (`services_id` ASC) VISIBLE," +
-                    "  INDEX `fk_timetable_users1_idx` (`users_id` ASC) VISIBLE," +
-                    "  CONSTRAINT `fk_timetable_services1`" +
+//                    "  INDEX `fk_timetable_services1_idx` (`services_id` ASC) VISIBLE," +
+//                    "  INDEX `fk_timetable_users1_idx` (`users_id` ASC) VISIBLE," +
+//                    "  CONSTRAINT `fk_timetable_services1`" +
                     "    FOREIGN KEY (`services_id`)" +
-                    "    REFERENCES `sboard_db`.`services` (`id`)" +
-                    "    ON DELETE NO ACTION" +
-                    "    ON UPDATE NO ACTION," +
-                    "  CONSTRAINT `fk_timetable_users1`" +
-                    "    FOREIGN KEY (`users_id`)" +
-                    "    REFERENCES `sboard_db`.`users` (`id`)" +
-                    "    ON DELETE NO ACTION" +
-                    "    ON UPDATE NO ACTION)");
+                    "    REFERENCES `services` (`id`))");
+//                    "    ON DELETE NO ACTION" +
+//                    "    ON UPDATE NO ACTION," +
+//                    "  CONSTRAINT `fk_timetable_users1`" +
+//                    "    FOREIGN KEY (`users_id`)" +
+//                    "    REFERENCES `sboard_db`.`users` (`id`)" +
+//                    "    ON DELETE NO ACTION" +
+//                    "    ON UPDATE NO ACTION)");
 
-            statement.execute("CREATE TABLE IF NOT EXISTS `sboard_db`.`orders` (" +
+            statement.execute("CREATE TABLE IF NOT EXISTS `orders` (" +
                     "  `id` INT NOT NULL AUTO_INCREMENT," +
                     "  `time_start` DATETIME NOT NULL," +
                     "  `time_end` DATETIME NOT NULL," +
                     "  `users_id` INT NOT NULL," +
                     "  `services_id` INT NOT NULL," +
                     "  PRIMARY KEY (`id`)," +
-                    "  INDEX `fk_orders_users1_idx` (`users_id` ASC) VISIBLE," +
-                    "  INDEX `fk_orders_services1_idx` (`services_id` ASC) VISIBLE," +
-                    "  CONSTRAINT `fk_orders_users1`" +
+//                    "  INDEX `fk_orders_users1_idx` (`users_id` ASC) VISIBLE," +
+//                    "  INDEX `fk_orders_services1_idx` (`services_id` ASC) VISIBLE," +
+//                    "  CONSTRAINT `fk_orders_users1`" +
                     "    FOREIGN KEY (`users_id`)" +
-                    "    REFERENCES `sboard_db`.`users` (`id`)" +
-                    "    ON DELETE NO ACTION" +
-                    "    ON UPDATE NO ACTION," +
-                    "  CONSTRAINT `fk_orders_services1`" +
-                    "    FOREIGN KEY (`services_id`)" +
-                    "    REFERENCES `sboard_db`.`services` (`id`)" +
-                    "    ON DELETE NO ACTION" +
-                    "    ON UPDATE NO ACTION)");
+                    "    REFERENCES `users` (`id`))");
+//                    "    ON DELETE NO ACTION" +
+//                    "    ON UPDATE NO ACTION," +
+//                    "  CONSTRAINT `fk_orders_services1`" +
+//                    "    FOREIGN KEY (`services_id`)" +
+//                    "    REFERENCES `sboard_db`.`services` (`id`)" +
+//                    "    ON DELETE NO ACTION" +
+//                    "    ON UPDATE NO ACTION)");
 
-            statement.execute("CREATE TABLE IF NOT EXISTS `sboard_db`.`archive` (" +
+            statement.execute("CREATE TABLE IF NOT EXISTS `archive` (" +
                     "  `id` INT NOT NULL AUTO_INCREMENT," +
                     "  `time_start` DATETIME NOT NULL," +
                     "  `time_end` DATETIME NOT NULL," +
                     "  `users_id` INT NOT NULL," +
                     "  `services_id` INT NOT NULL," +
                     "  PRIMARY KEY (`id`)," +
-                    "  INDEX `fk_archive_users1_idx` (`users_id` ASC) VISIBLE," +
-                    "  INDEX `fk_archive_services1_idx` (`services_id` ASC) VISIBLE," +
-                    "  CONSTRAINT `fk_archive_users1`" +
+//                    "  INDEX `fk_archive_users1_idx` (`users_id` ASC) VISIBLE," +
+//                    "  INDEX `fk_archive_services1_idx` (`services_id` ASC) VISIBLE," +
+//                    "  CONSTRAINT `fk_archive_users1`" +
                     "    FOREIGN KEY (`users_id`)" +
-                    "    REFERENCES `sboard_db`.`users` (`id`)" +
-                    "    ON DELETE NO ACTION" +
-                    "    ON UPDATE NO ACTION," +
-                    "  CONSTRAINT `fk_archive_services1`" +
-                    "    FOREIGN KEY (`services_id`)" +
-                    "    REFERENCES `sboard_db`.`services` (`id`)" +
-                    "    ON DELETE NO ACTION" +
-                    "    ON UPDATE NO ACTION)");
+                    "    REFERENCES `users` (`id`))");
+//                    "    ON DELETE NO ACTION" +
+//                    "    ON UPDATE NO ACTION," +
+//                    "  CONSTRAINT `fk_archive_services1`" +
+//                    "    FOREIGN KEY (`services_id`)" +
+//                    "    REFERENCES `sboard_db`.`services` (`id`)" +
+//                    "    ON DELETE NO ACTION" +
+//                    "    ON UPDATE NO ACTION)");
 
             LoggerHelper.info("Database preparation completed successfully");
         } catch (SQLException e) {

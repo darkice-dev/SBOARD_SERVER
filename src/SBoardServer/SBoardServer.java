@@ -18,8 +18,8 @@ public class SBoardServer {
     public SBoardServer() {
         instance = this;
         serverConfig = new ServerConfig("config", IOHelper.WORKING_DIR);
-        //mySQL = new MySQL();
-        //storageManager = new StorageManager();
+        mySQL = new MySQL();
+        storageManager = new StorageManager();
         LoggerHelper loggerHelper = new LoggerHelper();
         loggerHelper.info("qq");
         LoggerHelper.info("adwwad");
