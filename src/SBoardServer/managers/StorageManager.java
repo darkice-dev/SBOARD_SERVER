@@ -7,6 +7,8 @@ import SBoardServer.utils.MySQL;
 
 import java.sql.*;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class StorageManager {
 
@@ -230,8 +232,37 @@ public class StorageManager {
         return company;
     }
 
-    public HashMap<String, Company> getCompanies() {
-        HashMap<String, Company> companies = new HashMap<>();
+    public Set<Company> getCompanyFromName(String name) {
+        Set<Company> companies = new HashSet<>();
+        PreparedStatement statement = null;
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM companies WHERE name=?");
+            statement.setString(1, name);
+            ResultSet set = statement.executeQuery();
+            while(set.next()) {
+                int cId = set.getInt("id");
+                String cName = set.getString("name");
+                String desc = set.getString("desc");
+                String address = set.getString("address");
+                String email = set.getString("email");
+                String phone = set.getString("phone");
+                float rate = set.getFloat("rate");
+                long createdTime = set.getLong("created_time");
+                Company company = new Company(cId, cName, desc, address, email, phone, rate, createdTime);
+                companies.add(company);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting companies \n" + e);
+            e.printStackTrace();
+        }
+        finally {
+            close(statement);
+        }
+        return companies;
+    }
+
+    public Set<Company> getCompanies() {
+        Set<Company> companies = new HashSet<>();
         PreparedStatement statement = null;
         try {
             statement = mySQL.getConnection().prepareStatement("SELECT * FROM companies");
@@ -246,6 +277,7 @@ public class StorageManager {
                 float rate = set.getFloat("rate");
                 long createdTime = set.getLong("created_time");
                 Company company = new Company(cId, name, desc, address, email, phone, rate, createdTime);
+                companies.add(company);
             }
         } catch (SQLException e) {
             LoggerHelper.error("Error while getting companies \n" + e);
@@ -297,8 +329,30 @@ public class StorageManager {
         return category;
     }
 
-    public HashMap<String, Category> getCategories() {
-        HashMap<String, Category> categories = new HashMap<>();
+    public Category getCategoryFromName(String name) {
+        PreparedStatement statement = null;
+        Category category = null;
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM categories WHERE name=?");
+            statement.setString(1, name);
+            ResultSet set = statement.executeQuery();
+            if(set.next()) {
+                int cId = set.getInt("id");
+                String cName = set.getString("name");
+                category = new Category(cId, cName);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting category \n" + e);
+            e.printStackTrace();
+        }
+        finally {
+            close(statement);
+        }
+        return category;
+    }
+
+    public Set<Category> getCategories() {
+        HashSet<Category> categories = new HashSet<>();
         PreparedStatement statement = null;
         try {
             statement = mySQL.getConnection().prepareStatement("SELECT * FROM categories");
@@ -307,7 +361,7 @@ public class StorageManager {
                 int id = set.getInt("id");
                 String name = set.getString("name");
                 Category category = new Category(id, name);
-                categories.put(name, category);
+                categories.add(category);
             }
         } catch (SQLException e) {
             LoggerHelper.error("Error while getting category \n" + e);
@@ -363,6 +417,121 @@ public class StorageManager {
             }
         } catch (SQLException e) {
             LoggerHelper.error("Error while getting user (id =" + id +") \n" + e);
+            e.printStackTrace();
+        }
+        finally {
+            close(statement);
+        }
+        return user;
+    }
+
+    public Set getUserFromName(String name) {
+        PreparedStatement statement = null;
+        Set<User> users = new HashSet<>();
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM users WHERE name=?");
+            statement.setString(1, name);
+            ResultSet set = statement.executeQuery();
+            while (set.next()) {
+                int uId = set.getInt("id");
+                String uName = set.getString("name");
+                String sName = set.getString("sname");
+                String patronymic = set.getString("patronymic");
+                String email = set.getString("email");
+                String phone = set.getString("phone");
+                String address = set.getString("address");
+                long createdTime = set.getLong("created_time");
+                User user = new User(uId, uName, sName, patronymic, email, phone, address, createdTime);
+                users.add(user);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting user (name =" + name +") \n" + e);
+            e.printStackTrace();
+        }
+        finally {
+            close(statement);
+        }
+        return users;
+    }
+
+    public Set getUserFromSName(String sName) {
+        PreparedStatement statement = null;
+        Set<User> users = new HashSet<>();
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM users WHERE sname=?");
+            statement.setString(1, sName);
+            ResultSet set = statement.executeQuery();
+            while (set.next()) {
+                int uId = set.getInt("id");
+                String uName = set.getString("name");
+                String uSName = set.getString("sname");
+                String patronymic = set.getString("patronymic");
+                String email = set.getString("email");
+                String phone = set.getString("phone");
+                String address = set.getString("address");
+                long createdTime = set.getLong("created_time");
+                User user = new User(uId, uName, uSName, patronymic, email, phone, address, createdTime);
+                users.add(user);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting user (sname =" + sName +") \n" + e);
+            e.printStackTrace();
+        }
+        finally {
+            close(statement);
+        }
+        return users;
+    }
+
+    public Set getUserFromPatronymic(String patronymic) {
+        PreparedStatement statement = null;
+        Set<User> users = new HashSet<>();
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM users WHERE patronymic=?");
+            statement.setString(1, patronymic);
+            ResultSet set = statement.executeQuery();
+            while (set.next()) {
+                int uId = set.getInt("id");
+                String uName = set.getString("name");
+                String uSName = set.getString("sname");
+                String uPatronymic = set.getString("patronymic");
+                String email = set.getString("email");
+                String phone = set.getString("phone");
+                String address = set.getString("address");
+                long createdTime = set.getLong("created_time");
+                User user = new User(uId, uName, uSName, uPatronymic, email, phone, address, createdTime);
+                users.add(user);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting user (patronymic =" + patronymic +") \n" + e);
+            e.printStackTrace();
+        }
+        finally {
+            close(statement);
+        }
+        return users;
+    }
+
+    public User getUserFromMail(String mail) {
+        PreparedStatement statement = null;
+        User user = null;
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM users WHERE email=?");
+            statement.setString(1, mail);
+            ResultSet set = statement.executeQuery();
+            if(set.next()) {
+                int uId = set.getInt("id");
+                String name = set.getString("name");
+                String sName = set.getString("sname");
+                String patronymic = set.getString("patronymic");
+                String uEmail = set.getString("email");
+                String phone = set.getString("phone");
+                String address = set.getString("address");
+                long createdTime = set.getLong("created_time");
+                user = new User(uId, name, sName, patronymic, uEmail, phone, address, createdTime);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting user (mail =" + mail +") \n" + e);
             e.printStackTrace();
         }
         finally {
@@ -459,6 +628,204 @@ public class StorageManager {
         return employee;
     }
 
+    public Set<Employee> getEmployeeFromMinRate(float mRate) {
+        PreparedStatement statement = null;
+        Set<Employee> employees = new HashSet<>();
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM employees WHERE rate>=?");
+            statement.setFloat(1, mRate);
+            ResultSet set = statement.executeQuery();
+            while (set.next()) {
+                int uId = set.getInt("id");
+                String name = set.getString("name");
+                String sName = set.getString("sname");
+                String patronymic = set.getString("patronymic");
+                String email = set.getString("email");
+                String phone = set.getString("phone");
+                String address = set.getString("address");
+                String education = set.getString("education");
+                String activities = set.getString("activities");
+                float rate = set.getFloat("rate");
+                long createdTime = set.getLong("created_time");
+                int companyId = set.getInt("company_id");
+                Employee employee = new Employee(uId, name, sName, patronymic, email, phone, address, education, activities, rate, createdTime, companyId);
+                employees.add(employee);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting employee (rate =" + mRate +") \n" + e);
+            e.printStackTrace();
+        }
+        finally {
+            close(statement);
+        }
+        return employees;
+    }
+
+    public Set<Employee> getEmployeeFromMaxRate(float mRate) {
+        PreparedStatement statement = null;
+        Set<Employee> employees = new HashSet<>();
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM employees WHERE rate<=?");
+            statement.setFloat(1, mRate);
+            ResultSet set = statement.executeQuery();
+            while (set.next()) {
+                int uId = set.getInt("id");
+                String name = set.getString("name");
+                String sName = set.getString("sname");
+                String patronymic = set.getString("patronymic");
+                String email = set.getString("email");
+                String phone = set.getString("phone");
+                String address = set.getString("address");
+                String education = set.getString("education");
+                String activities = set.getString("activities");
+                float rate = set.getFloat("rate");
+                long createdTime = set.getLong("created_time");
+                int companyId = set.getInt("company_id");
+                Employee employee = new Employee(uId, name, sName, patronymic, email, phone, address, education, activities, rate, createdTime, companyId);
+                employees.add(employee);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting employee (rate =" + mRate +") \n" + e);
+            e.printStackTrace();
+        }
+        finally {
+            close(statement);
+        }
+        return employees;
+    }
+
+    public Set<Employee> getEmployeeFromName(String name) {
+        PreparedStatement statement = null;
+        Set<Employee> employees = new HashSet<>();
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM employees WHERE name=?");
+            statement.setString(1, name);
+            ResultSet set = statement.executeQuery();
+            while(set.next()) {
+                int uId = set.getInt("id");
+                String eName = set.getString("name");
+                String sName = set.getString("sname");
+                String patronymic = set.getString("patronymic");
+                String email = set.getString("email");
+                String phone = set.getString("phone");
+                String address = set.getString("address");
+                String education = set.getString("education");
+                String activities = set.getString("activities");
+                float rate = set.getFloat("rate");
+                long createdTime = set.getLong("created_time");
+                int companyId = set.getInt("company_id");
+                Employee employee = new Employee(uId, eName, sName, patronymic, email, phone, address, education, activities, rate, createdTime, companyId);
+                employees.add(employee);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting employee (name =" + name +") \n" + e);
+            e.printStackTrace();
+        }
+        finally {
+            close(statement);
+        }
+        return employees;
+    }
+
+    public Set<Employee> getEmployeeFromSName(String sName) {
+        PreparedStatement statement = null;
+        Set<Employee> employees = new HashSet<>();
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM employees WHERE sname=?");
+            statement.setString(1, sName);
+            ResultSet set = statement.executeQuery();
+            while(set.next()) {
+                int uId = set.getInt("id");
+                String eName = set.getString("name");
+                String eSName = set.getString("sname");
+                String patronymic = set.getString("patronymic");
+                String email = set.getString("email");
+                String phone = set.getString("phone");
+                String address = set.getString("address");
+                String education = set.getString("education");
+                String activities = set.getString("activities");
+                float rate = set.getFloat("rate");
+                long createdTime = set.getLong("created_time");
+                int companyId = set.getInt("company_id");
+                Employee employee = new Employee(uId, eName, eSName, patronymic, email, phone, address, education, activities, rate, createdTime, companyId);
+                employees.add(employee);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting employee (sname =" + sName +") \n" + e);
+            e.printStackTrace();
+        }
+        finally {
+            close(statement);
+        }
+        return employees;
+    }
+
+    public Set<Employee> getEmployeeFromPatronymic(String patronymic) {
+        PreparedStatement statement = null;
+        Set<Employee> employees = new HashSet<>();
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM employees WHERE patronymic=?");
+            statement.setString(1, patronymic);
+            ResultSet set = statement.executeQuery();
+            while(set.next()) {
+                int uId = set.getInt("id");
+                String eName = set.getString("name");
+                String eSName = set.getString("sname");
+                String ePatronymic = set.getString("patronymic");
+                String email = set.getString("email");
+                String phone = set.getString("phone");
+                String address = set.getString("address");
+                String education = set.getString("education");
+                String activities = set.getString("activities");
+                float rate = set.getFloat("rate");
+                long createdTime = set.getLong("created_time");
+                int companyId = set.getInt("company_id");
+                Employee employee = new Employee(uId, eName, eSName, ePatronymic, email, phone, address, education, activities, rate, createdTime, companyId);
+                employees.add(employee);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting employee (patronymic =" + patronymic +") \n" + e);
+            e.printStackTrace();
+        }
+        finally {
+            close(statement);
+        }
+        return employees;
+    }
+
+    public Set<Employee> getEmployeeFromMail(String mail) {
+        PreparedStatement statement = null;
+        Set<Employee> employees = new HashSet<>();
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM employees WHERE email=?");
+            statement.setString(1, mail);
+            ResultSet set = statement.executeQuery();
+            while(set.next()) {
+                int uId = set.getInt("id");
+                String eName = set.getString("name");
+                String sName = set.getString("sname");
+                String patronymic = set.getString("patronymic");
+                String email = set.getString("email");
+                String phone = set.getString("phone");
+                String address = set.getString("address");
+                String education = set.getString("education");
+                String activities = set.getString("activities");
+                float rate = set.getFloat("rate");
+                long createdTime = set.getLong("created_time");
+                int companyId = set.getInt("company_id");
+                Employee employee = new Employee(uId, eName, sName, patronymic, email, phone, address, education, activities, rate, createdTime, companyId);
+                employees.add(employee);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting employee (email =" + mail +") \n" + e);
+            e.printStackTrace();
+        }
+        finally {
+            close(statement);
+        }
+        return employees;
+    }
+
     public HashMap<String, Employee> getEmployees() {
         HashMap<String, Employee> employees = new HashMap<>();
         PreparedStatement statement = null;
@@ -535,6 +902,84 @@ public class StorageManager {
             close(statement);
         }
         return service;
+    }
+
+    public Set<Service> getServiceFromName(String name) {
+        PreparedStatement statement = null;
+        Set<Service> services = new HashSet<>();
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM services WHERE name=?");
+            statement.setString(1, name);
+            ResultSet set = statement.executeQuery();
+            while (set.next()) {
+                int sId = set.getInt("id");
+                String sName = set.getString("name");
+                double price = set.getDouble("price");
+                int employeeId = set.getInt("employee_id");
+                int categoryId = set.getInt("categories_id");
+                Service service = new Service(sId, sName, price, employeeId, categoryId);
+                services.add(service);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting service \n" + e);
+            e.printStackTrace();
+        }
+        finally {
+            close(statement);
+        }
+        return services;
+    }
+
+    public Set<Service> getServiceFromMinPrice(double mPrice) {
+        PreparedStatement statement = null;
+        Set<Service> services = new HashSet<>();
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM services WHERE price>=?");
+            statement.setDouble(1, mPrice);
+            ResultSet set = statement.executeQuery();
+            while (set.next()) {
+                int sId = set.getInt("id");
+                String sName = set.getString("name");
+                double price = set.getDouble("price");
+                int employeeId = set.getInt("employee_id");
+                int categoryId = set.getInt("categories_id");
+                Service service = new Service(sId, sName, price, employeeId, categoryId);
+                services.add(service);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting service \n" + e);
+            e.printStackTrace();
+        }
+        finally {
+            close(statement);
+        }
+        return services;
+    }
+
+    public Set<Service> getServiceFromMaxPrice(double mPrice) {
+        PreparedStatement statement = null;
+        Set<Service> services = new HashSet<>();
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM services WHERE price<=?");
+            statement.setDouble(1, mPrice);
+            ResultSet set = statement.executeQuery();
+            while (set.next()) {
+                int sId = set.getInt("id");
+                String sName = set.getString("name");
+                double price = set.getDouble("price");
+                int employeeId = set.getInt("employee_id");
+                int categoryId = set.getInt("categories_id");
+                Service service = new Service(sId, sName, price, employeeId, categoryId);
+                services.add(service);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting service \n" + e);
+            e.printStackTrace();
+        }
+        finally {
+            close(statement);
+        }
+        return services;
     }
 
     public HashMap<String, Service> getServices() {
