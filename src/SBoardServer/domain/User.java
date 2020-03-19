@@ -3,6 +3,8 @@ package SBoardServer.domain;
 public class User {
 
     private int id;
+    private String login;
+    private String password;
     private String name;
     private String sName;
     private String patronymic;
@@ -11,8 +13,10 @@ public class User {
     private String address;
     private long createdTime;
 
-    public User(int id, String name, String sName, String patronymic, String email, String phone, String address, long createdTime) {
+    public User(int id, String login, String password, String name, String sName, String patronymic, String email, String phone, String address, long createdTime) {
         this.id = id;
+        this.login = login;
+        this.password = password;
         this.name = name;
         this.sName = sName;
         this.patronymic = patronymic;
@@ -52,5 +56,13 @@ public class User {
 
     public long getCreatedTime() {
         return createdTime;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public String getPassword() {
+        return password;
     }
 }

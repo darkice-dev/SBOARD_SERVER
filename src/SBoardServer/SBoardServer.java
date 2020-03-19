@@ -1,6 +1,7 @@
 package SBoardServer;
 
 
+import SBoardServer.commands.CommandHandler;
 import SBoardServer.helpers.IOHelper;
 import SBoardServer.helpers.LoggerHelper;
 import SBoardServer.managers.StorageManager;
@@ -21,6 +22,8 @@ public class SBoardServer {
         mySQL = new MySQL();
         storageManager = new StorageManager();
         LoggerHelper loggerHelper = new LoggerHelper();
+        CommandHandler commandHandler = new CommandHandler(this);
+        commandHandler.start();
         loggerHelper.info("qq");
         LoggerHelper.info("adwwad");
         LoggerHelper.info("q");
@@ -40,5 +43,9 @@ public class SBoardServer {
 
     public MySQL getMySQL() {
         return mySQL;
+    }
+
+    public StorageManager getStorageManager() {
+        return storageManager;
     }
 }

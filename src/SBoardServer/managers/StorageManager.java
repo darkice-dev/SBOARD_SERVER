@@ -100,13 +100,15 @@ public class StorageManager {
 
             statement.execute("CREATE TABLE IF NOT EXISTS `users` (" +
                     "  `id` INT NOT NULL AUTO_INCREMENT," +
+                    "  `login` VARCHAR(16) NOT NULL," +
+                    "  `password` VARCHAR(64) NOT NULL," +
                     "  `name` VARCHAR(16) NOT NULL," +
                     "  `sname` VARCHAR(16) NOT NULL," +
                     "  `patronymic` VARCHAR(16) NOT NULL," +
                     "  `email` VARCHAR(32) NOT NULL," +
                     "  `phone` VARCHAR(16) NOT NULL," +
                     "  `address` VARCHAR(64) NOT NULL," +
-                    " `created_time` DATETIME NOT NULL," +
+                    " `created_time` BIGINT NOT NULL," +
                     "  PRIMARY KEY (`id`))");
 
             statement.execute("CREATE TABLE IF NOT EXISTS `timetable` (" +
@@ -372,21 +374,23 @@ public class StorageManager {
         return categories;
     }
 
-    public void createUser(int id, String name, String sName, String patronymic, String email, String phone, String address, long createdTime) {
+    public void createUser(String login, String pass, String name, String sName, String patronymic, String email, String phone, String address, long createdTime) {
         mySQL.getExecutor().submit(new Runnable() {
             @Override
             public void run() {
                 PreparedStatement statement = null;
                 try {
-                    statement = mySQL.getConnection().prepareStatement("INSERT INTO users (id, name, sname, patronymic, email, phone, address, created_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-                    statement.setInt(1, id);
-                    statement.setString(2, name);
-                    statement.setString(3, sName);
-                    statement.setString(4, patronymic);
-                    statement.setString(5, email);
-                    statement.setString(6, phone);
-                    statement.setString(7, address);
-                    statement.setLong(8, createdTime);
+                    statement = mySQL.getConnection().prepareStatement("INSERT INTO users (login, password, name, sname, patronymic, email, phone, address, created_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    //statement.setInt(1, id);
+                    statement.setString(1, login);
+                    statement.setString(2, pass);
+                    statement.setString(3, name);
+                    statement.setString(4, sName);
+                    statement.setString(5, patronymic);
+                    statement.setString(6, email);
+                    statement.setString(7, phone);
+                    statement.setString(8, address);
+                    statement.setLong(9, createdTime);
                     statement.execute();
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -406,6 +410,8 @@ public class StorageManager {
             ResultSet set = statement.executeQuery();
             if(set.next()) {
                 int uId = set.getInt("id");
+                String login = set.getString("login");
+                String pass = set.getString("password");
                 String name = set.getString("name");
                 String sName = set.getString("sname");
                 String patronymic = set.getString("patronymic");
@@ -413,10 +419,40 @@ public class StorageManager {
                 String phone = set.getString("phone");
                 String address = set.getString("address");
                 long createdTime = set.getLong("created_time");
-                user = new User(uId, name, sName, patronymic, email, phone, address, createdTime);
+                user = new User(uId,login, pass, name, sName, patronymic, email, phone, address, createdTime);
             }
         } catch (SQLException e) {
             LoggerHelper.error("Error while getting user (id =" + id +") \n" + e);
+            e.printStackTrace();
+        }
+        finally {
+            close(statement);
+        }
+        return user;
+    }
+
+    public User getUserFromLogin(String login) {
+        PreparedStatement statement = null;
+        User user = null;
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM users WHERE login=?");
+            statement.setString(1, login);
+            ResultSet set = statement.executeQuery();
+            if(set.next()) {
+                int uId = set.getInt("id");
+                String uLogin = set.getString("login");
+                String pass = set.getString("password");
+                String name = set.getString("name");
+                String sName = set.getString("sname");
+                String patronymic = set.getString("patronymic");
+                String email = set.getString("email");
+                String phone = set.getString("phone");
+                String address = set.getString("address");
+                long createdTime = set.getLong("created_time");
+                user = new User(uId, uLogin, pass, name, sName, patronymic, email, phone, address, createdTime);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting user (login =" + login +") \n" + e);
             e.printStackTrace();
         }
         finally {
@@ -434,6 +470,8 @@ public class StorageManager {
             ResultSet set = statement.executeQuery();
             while (set.next()) {
                 int uId = set.getInt("id");
+                String uLogin = set.getString("login");
+                String pass = set.getString("password");
                 String uName = set.getString("name");
                 String sName = set.getString("sname");
                 String patronymic = set.getString("patronymic");
@@ -441,7 +479,7 @@ public class StorageManager {
                 String phone = set.getString("phone");
                 String address = set.getString("address");
                 long createdTime = set.getLong("created_time");
-                User user = new User(uId, uName, sName, patronymic, email, phone, address, createdTime);
+                User user = new User(uId, uLogin, pass, uName, sName, patronymic, email, phone, address, createdTime);
                 users.add(user);
             }
         } catch (SQLException e) {
@@ -463,6 +501,8 @@ public class StorageManager {
             ResultSet set = statement.executeQuery();
             while (set.next()) {
                 int uId = set.getInt("id");
+                String uLogin = set.getString("login");
+                String pass = set.getString("password");
                 String uName = set.getString("name");
                 String uSName = set.getString("sname");
                 String patronymic = set.getString("patronymic");
@@ -470,7 +510,7 @@ public class StorageManager {
                 String phone = set.getString("phone");
                 String address = set.getString("address");
                 long createdTime = set.getLong("created_time");
-                User user = new User(uId, uName, uSName, patronymic, email, phone, address, createdTime);
+                User user = new User(uId, uLogin, pass, uName, uSName, patronymic, email, phone, address, createdTime);
                 users.add(user);
             }
         } catch (SQLException e) {
@@ -492,6 +532,8 @@ public class StorageManager {
             ResultSet set = statement.executeQuery();
             while (set.next()) {
                 int uId = set.getInt("id");
+                String uLogin = set.getString("login");
+                String pass = set.getString("password");
                 String uName = set.getString("name");
                 String uSName = set.getString("sname");
                 String uPatronymic = set.getString("patronymic");
@@ -499,7 +541,7 @@ public class StorageManager {
                 String phone = set.getString("phone");
                 String address = set.getString("address");
                 long createdTime = set.getLong("created_time");
-                User user = new User(uId, uName, uSName, uPatronymic, email, phone, address, createdTime);
+                User user = new User(uId, uLogin, pass, uName, uSName, uPatronymic, email, phone, address, createdTime);
                 users.add(user);
             }
         } catch (SQLException e) {
@@ -521,6 +563,8 @@ public class StorageManager {
             ResultSet set = statement.executeQuery();
             if(set.next()) {
                 int uId = set.getInt("id");
+                String uLogin = set.getString("login");
+                String pass = set.getString("password");
                 String name = set.getString("name");
                 String sName = set.getString("sname");
                 String patronymic = set.getString("patronymic");
@@ -528,7 +572,7 @@ public class StorageManager {
                 String phone = set.getString("phone");
                 String address = set.getString("address");
                 long createdTime = set.getLong("created_time");
-                user = new User(uId, name, sName, patronymic, uEmail, phone, address, createdTime);
+                user = new User(uId, uLogin, pass, name, sName, patronymic, uEmail, phone, address, createdTime);
             }
         } catch (SQLException e) {
             LoggerHelper.error("Error while getting user (mail =" + mail +") \n" + e);
@@ -548,6 +592,8 @@ public class StorageManager {
             ResultSet set = statement.executeQuery();
             while (set.next()) {
                 int uId = set.getInt("id");
+                String uLogin = set.getString("login");
+                String pass = set.getString("password");
                 String name = set.getString("name");
                 String sName = set.getString("sname");
                 String patronymic = set.getString("patronymic");
@@ -555,7 +601,7 @@ public class StorageManager {
                 String phone = set.getString("phone");
                 String address = set.getString("address");
                 long createdTime = set.getLong("created_time");
-                User user = new User(uId, name, sName, patronymic, email, phone, address, createdTime);
+                User user = new User(uId, uLogin, pass, name, sName, patronymic, email, phone, address, createdTime);
                 users.put(name, user);
             }
         } catch (SQLException e) {
