@@ -23,14 +23,16 @@ public class StorageManager {
         try {
             LoggerHelper.info("Preparing DataBase ....");
             Statement statement = mySQL.getConnection().createStatement();
-            statement.execute("CREATE TABLE IF NOT EXISTS `companies` (`id` INT NOT NULL AUTO_INCREMENT," +
+            statement.execute("CREATE TABLE IF NOT EXISTS `companies` (" +
+                    "`id` INT NOT NULL AUTO_INCREMENT," +
                     " `name` VARCHAR(128) NOT NULL," +
                     " `desc` VARCHAR(256) NOT NULL," +
                     " `address` VARCHAR(128) NOT NULL," +
                     " `email` VARCHAR(32) NOT NULL," +
+                    " `password` VARCHAR(64) NOT NULL," +
                     " `phone` VARCHAR(16) NOT NULL," +
                     " `rate` FLOAT NOT NULL," +
-                    " `created_time` DATETIME NOT NULL," +
+                    " `created_time` BIGINT NOT NULL," +
                     " PRIMARY KEY (`id`))");
 
             statement.execute("CREATE TABLE IF NOT EXISTS `employees` (" +
@@ -39,6 +41,7 @@ public class StorageManager {
                     " `sname` VARCHAR(16) NOT NULL," +
                     " `patronymic` VARCHAR(16) NOT NULL," +
                     " `email` VARCHAR(32) NOT NULL," +
+                    " `password` VARCHAR(64) NOT NULL," +
                     " `phone` VARCHAR(16) NOT NULL," +
                     " `education` VARCHAR(32) NOT NULL," +
                     " `activities` VARCHAR(128) NOT NULL," +
@@ -179,19 +182,19 @@ public class StorageManager {
         }
     }
 
-    public void createCompany(int id, String name, String desc, String address, String email, String phone, float rate, long createdTime) {
+    public void createCompany(String name, String desc, String address, String email,String password, String phone, float rate, long createdTime) {
         mySQL.getExecutor().submit(new Runnable() {
             @Override
             public void run() {
                 PreparedStatement statement = null;
                 try {
-                    statement = mySQL.getConnection().prepareStatement("INSERT INTO companies (id, name, desc, address, email, phone, rate, created_time) VALUES " +
+                    statement = mySQL.getConnection().prepareStatement("INSERT INTO companies (name, desc, address, email, password, phone, rate, created_time) VALUES " +
                             "(?, ?, ?, ?, ?, ?, ?, ?)");
-                    statement.setInt(1, id);
-                    statement.setString(2, name);
-                    statement.setString(3, desc);
-                    statement.setString(4, address);
-                    statement.setString(5, email);
+                    statement.setString(1, name);
+                    statement.setString(2, desc);
+                    statement.setString(3, address);
+                    statement.setString(4, email);
+                    statement.setString(5, password);
                     statement.setString(6, phone);
                     statement.setFloat(7, rate);
                     statement.setLong(8, createdTime);
@@ -219,10 +222,11 @@ public class StorageManager {
                 String desc = set.getString("desc");
                 String address = set.getString("address");
                 String email = set.getString("email");
+                String password = set.getString("password");
                 String phone = set.getString("phone");
                 float rate = set.getFloat("rate");
                 long createdTime = set.getLong("created_time");
-                company = new Company(cId, name, desc, address, email, phone, rate, createdTime);
+                company = new Company(cId, name, desc, address, password, email, phone, rate, createdTime);
             }
         } catch (SQLException e) {
             LoggerHelper.error("Error while getting companies \n" + e);
@@ -247,10 +251,11 @@ public class StorageManager {
                 String desc = set.getString("desc");
                 String address = set.getString("address");
                 String email = set.getString("email");
+                String password = set.getString("password");
                 String phone = set.getString("phone");
                 float rate = set.getFloat("rate");
                 long createdTime = set.getLong("created_time");
-                Company company = new Company(cId, cName, desc, address, email, phone, rate, createdTime);
+                Company company = new Company(cId, cName, desc, address, email, password, phone, rate, createdTime);
                 companies.add(company);
             }
         } catch (SQLException e) {
@@ -261,6 +266,35 @@ public class StorageManager {
             close(statement);
         }
         return companies;
+    }
+
+    public Company getCompanyFromMail(String mail) {
+        Company company = null;
+        PreparedStatement statement = null;
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM companies WHERE email=?");
+            statement.setString(1, mail);
+            ResultSet set = statement.executeQuery();
+            if(set.next()) {
+                int cId = set.getInt("id");
+                String cName = set.getString("name");
+                String desc = set.getString("desc");
+                String address = set.getString("address");
+                String email = set.getString("email");
+                String password = set.getString("password");
+                String phone = set.getString("phone");
+                float rate = set.getFloat("rate");
+                long createdTime = set.getLong("created_time");
+                company = new Company(cId, cName, desc, address, email, password, phone, rate, createdTime);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting companies \n" + e);
+            e.printStackTrace();
+        }
+        finally {
+            close(statement);
+        }
+        return company;
     }
 
     public Set<Company> getCompanies() {
@@ -275,10 +309,11 @@ public class StorageManager {
                 String desc = set.getString("desc");
                 String address = set.getString("address");
                 String email = set.getString("email");
+                String password = set.getString("password");
                 String phone = set.getString("phone");
                 float rate = set.getFloat("rate");
                 long createdTime = set.getLong("created_time");
-                Company company = new Company(cId, name, desc, address, email, phone, rate, createdTime);
+                Company company = new Company(cId, name, desc, address, password, email, phone, rate, createdTime);
                 companies.add(company);
             }
         } catch (SQLException e) {
@@ -613,18 +648,18 @@ public class StorageManager {
         return users;
     }
 
-    public void createEmployee(int id, String name, String sName, String patronymic, String email, String phone, String address, String education, String activities, float rate, long createdTime, int companyId) {
+    public void createEmployee(String name, String sName, String patronymic, String email, String password, String phone, String address, String education, String activities, float rate, long createdTime, int companyId) {
         mySQL.getExecutor().submit(new Runnable() {
             @Override
             public void run() {
                 PreparedStatement statement = null;
                 try {
-                    statement = mySQL.getConnection().prepareStatement("INSERT INTO employees (id, name, sname, patronymic, email, phone, address, education, activities, rate, created_time, company_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                    statement.setInt(1, id);
-                    statement.setString(2, name);
-                    statement.setString(3, sName);
-                    statement.setString(4, patronymic);
-                    statement.setString(5, email);
+                    statement = mySQL.getConnection().prepareStatement("INSERT INTO employees (name, sname, patronymic, email, phone, address, password, education, activities, rate, created_time, company_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    statement.setString(1, name);
+                    statement.setString(2, sName);
+                    statement.setString(3, patronymic);
+                    statement.setString(4, email);
+                    statement.setString(5, password);
                     statement.setString(6, phone);
                     statement.setString(7, address);
                     statement.setString(8, education);
@@ -655,6 +690,7 @@ public class StorageManager {
                 String sName = set.getString("sname");
                 String patronymic = set.getString("patronymic");
                 String email = set.getString("email");
+                String password = set.getString("password");
                 String phone = set.getString("phone");
                 String address = set.getString("address");
                 String education = set.getString("education");
@@ -662,7 +698,7 @@ public class StorageManager {
                 float rate = set.getFloat("rate");
                 long createdTime = set.getLong("created_time");
                 int companyId = set.getInt("company_id");
-                employee = new Employee(uId, name, sName, patronymic, email, phone, address, education, activities, rate, createdTime, companyId);
+                employee = new Employee(uId, name, sName, patronymic, email, password, phone, address, education, activities, rate, createdTime, companyId);
             }
         } catch (SQLException e) {
             LoggerHelper.error("Error while getting employee (id =" + id +") \n" + e);
@@ -687,6 +723,7 @@ public class StorageManager {
                 String sName = set.getString("sname");
                 String patronymic = set.getString("patronymic");
                 String email = set.getString("email");
+                String password = set.getString("password");
                 String phone = set.getString("phone");
                 String address = set.getString("address");
                 String education = set.getString("education");
@@ -694,7 +731,7 @@ public class StorageManager {
                 float rate = set.getFloat("rate");
                 long createdTime = set.getLong("created_time");
                 int companyId = set.getInt("company_id");
-                Employee employee = new Employee(uId, name, sName, patronymic, email, phone, address, education, activities, rate, createdTime, companyId);
+                Employee employee = new Employee(uId, name, sName, patronymic, email, password, phone, address, education, activities, rate, createdTime, companyId);
                 employees.add(employee);
             }
         } catch (SQLException e) {
@@ -720,6 +757,7 @@ public class StorageManager {
                 String sName = set.getString("sname");
                 String patronymic = set.getString("patronymic");
                 String email = set.getString("email");
+                String password = set.getString("password");
                 String phone = set.getString("phone");
                 String address = set.getString("address");
                 String education = set.getString("education");
@@ -727,7 +765,7 @@ public class StorageManager {
                 float rate = set.getFloat("rate");
                 long createdTime = set.getLong("created_time");
                 int companyId = set.getInt("company_id");
-                Employee employee = new Employee(uId, name, sName, patronymic, email, phone, address, education, activities, rate, createdTime, companyId);
+                Employee employee = new Employee(uId, name, sName, patronymic, email, password, phone, address, education, activities, rate, createdTime, companyId);
                 employees.add(employee);
             }
         } catch (SQLException e) {
@@ -753,6 +791,7 @@ public class StorageManager {
                 String sName = set.getString("sname");
                 String patronymic = set.getString("patronymic");
                 String email = set.getString("email");
+                String password = set.getString("password");
                 String phone = set.getString("phone");
                 String address = set.getString("address");
                 String education = set.getString("education");
@@ -760,7 +799,7 @@ public class StorageManager {
                 float rate = set.getFloat("rate");
                 long createdTime = set.getLong("created_time");
                 int companyId = set.getInt("company_id");
-                Employee employee = new Employee(uId, eName, sName, patronymic, email, phone, address, education, activities, rate, createdTime, companyId);
+                Employee employee = new Employee(uId, eName, sName, patronymic, email, password, phone, address, education, activities, rate, createdTime, companyId);
                 employees.add(employee);
             }
         } catch (SQLException e) {
@@ -786,6 +825,7 @@ public class StorageManager {
                 String eSName = set.getString("sname");
                 String patronymic = set.getString("patronymic");
                 String email = set.getString("email");
+                String password = set.getString("password");
                 String phone = set.getString("phone");
                 String address = set.getString("address");
                 String education = set.getString("education");
@@ -793,7 +833,7 @@ public class StorageManager {
                 float rate = set.getFloat("rate");
                 long createdTime = set.getLong("created_time");
                 int companyId = set.getInt("company_id");
-                Employee employee = new Employee(uId, eName, eSName, patronymic, email, phone, address, education, activities, rate, createdTime, companyId);
+                Employee employee = new Employee(uId, eName, eSName, patronymic, email, password, phone, address, education, activities, rate, createdTime, companyId);
                 employees.add(employee);
             }
         } catch (SQLException e) {
@@ -819,6 +859,7 @@ public class StorageManager {
                 String eSName = set.getString("sname");
                 String ePatronymic = set.getString("patronymic");
                 String email = set.getString("email");
+                String password = set.getString("password");
                 String phone = set.getString("phone");
                 String address = set.getString("address");
                 String education = set.getString("education");
@@ -826,7 +867,7 @@ public class StorageManager {
                 float rate = set.getFloat("rate");
                 long createdTime = set.getLong("created_time");
                 int companyId = set.getInt("company_id");
-                Employee employee = new Employee(uId, eName, eSName, ePatronymic, email, phone, address, education, activities, rate, createdTime, companyId);
+                Employee employee = new Employee(uId, eName, eSName, ePatronymic, email, password, phone, address, education, activities, rate, createdTime, companyId);
                 employees.add(employee);
             }
         } catch (SQLException e) {
@@ -839,19 +880,20 @@ public class StorageManager {
         return employees;
     }
 
-    public Set<Employee> getEmployeeFromMail(String mail) {
+    public Employee getEmployeeFromMail(String mail) {
         PreparedStatement statement = null;
-        Set<Employee> employees = new HashSet<>();
+        Employee employee = null;
         try {
             statement = mySQL.getConnection().prepareStatement("SELECT * FROM employees WHERE email=?");
             statement.setString(1, mail);
             ResultSet set = statement.executeQuery();
-            while(set.next()) {
+            if(set.next()) {
                 int uId = set.getInt("id");
                 String eName = set.getString("name");
                 String sName = set.getString("sname");
                 String patronymic = set.getString("patronymic");
                 String email = set.getString("email");
+                String password = set.getString("password");
                 String phone = set.getString("phone");
                 String address = set.getString("address");
                 String education = set.getString("education");
@@ -859,8 +901,7 @@ public class StorageManager {
                 float rate = set.getFloat("rate");
                 long createdTime = set.getLong("created_time");
                 int companyId = set.getInt("company_id");
-                Employee employee = new Employee(uId, eName, sName, patronymic, email, phone, address, education, activities, rate, createdTime, companyId);
-                employees.add(employee);
+                employee = new Employee(uId, eName, sName, patronymic, email, password, phone, address, education, activities, rate, createdTime, companyId);
             }
         } catch (SQLException e) {
             LoggerHelper.error("Error while getting employee (email =" + mail +") \n" + e);
@@ -869,7 +910,7 @@ public class StorageManager {
         finally {
             close(statement);
         }
-        return employees;
+        return employee;
     }
 
     public HashMap<String, Employee> getEmployees() {
@@ -884,6 +925,7 @@ public class StorageManager {
                 String sName = set.getString("sname");
                 String patronymic = set.getString("patronymic");
                 String email = set.getString("email");
+                String password = set.getString("password");
                 String phone = set.getString("phone");
                 String address = set.getString("address");
                 String education = set.getString("education");
@@ -891,7 +933,7 @@ public class StorageManager {
                 float rate = set.getFloat("rate");
                 long createdTime = set.getLong("created_time");
                 int companyId = set.getInt("company_id");
-                Employee employee = new Employee(uId, name, sName, patronymic, email, phone, address, education, activities, rate, createdTime, companyId);
+                Employee employee = new Employee(uId, name, sName, patronymic, email, password, phone, address, education, activities, rate, createdTime, companyId);
                 employees.put(name, employee);
             }
         } catch (SQLException e) {

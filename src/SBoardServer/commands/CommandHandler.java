@@ -1,7 +1,11 @@
 package SBoardServer.commands;
 
 import SBoardServer.SBoardServer;
-import SBoardServer.commands.register.RegisterCommand;
+import SBoardServer.commands.register.RegisterCompanyCommand;
+import SBoardServer.commands.register.RegisterEmployee;
+import SBoardServer.commands.register.RegisterUserCommand;
+import SBoardServer.commands.specialcommands.HelpCommand;
+import SBoardServer.commands.specialcommands.StopCommand;
 import SBoardServer.helpers.LoggerHelper;
 
 import java.io.BufferedReader;
@@ -9,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class CommandHandler extends Thread {
 
@@ -17,7 +20,12 @@ public class CommandHandler extends Thread {
     private HashMap<String, AbstractCommand> commands = new HashMap<>();
 
     public CommandHandler(SBoardServer server) {
-        register("reg", new RegisterCommand(server));
+        this.server = server;
+        register("reguser", new RegisterUserCommand(server, 3));
+        register("regcompany", new RegisterCompanyCommand(server, 2));
+        register("regemployee", new RegisterEmployee(server, 3));
+        register("help", new HelpCommand(server, 0));
+        register("stop", new StopCommand(server, 0));
     }
 
     public void register(String id, AbstractCommand command) {
@@ -37,7 +45,7 @@ public class CommandHandler extends Thread {
 
     public void read() {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        String line = null;
+        String line;
         try {
             line = br.readLine();
         } catch (IOException e) {
@@ -57,5 +65,9 @@ public class CommandHandler extends Thread {
         } catch (CommandException e) {
             LoggerHelper.error(e.getMessage());
         }
+    }
+
+    public HashMap<String, AbstractCommand> getCommands() {
+        return commands;
     }
 }

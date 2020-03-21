@@ -15,6 +15,7 @@ public class SBoardServer {
     private ServerConfig serverConfig;
     private MySQL mySQL;
     private StorageManager storageManager;
+    private CommandHandler commandHandler;
 
     public SBoardServer() {
         instance = this;
@@ -22,7 +23,7 @@ public class SBoardServer {
         mySQL = new MySQL();
         storageManager = new StorageManager();
         LoggerHelper loggerHelper = new LoggerHelper();
-        CommandHandler commandHandler = new CommandHandler(this);
+        commandHandler = new CommandHandler(this);
         commandHandler.start();
         loggerHelper.info("qq");
         LoggerHelper.info("adwwad");
@@ -47,5 +48,9 @@ public class SBoardServer {
 
     public StorageManager getStorageManager() {
         return storageManager;
+    }
+
+    public CommandHandler getCommandHandler() {
+        return commandHandler;
     }
 }

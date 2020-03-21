@@ -1,6 +1,8 @@
 package SBoardServer.utils;
 
 import SBoardServer.SBoardServer;
+import SBoardServer.domain.Company;
+import SBoardServer.domain.Employee;
 import SBoardServer.domain.User;
 
 import java.io.IOException;
@@ -40,5 +42,29 @@ public class ServerUtils {
             return true;
         }
         return false;
+    }
+
+    public static boolean isExistCompanyWithMail(String mail) {
+        Company company = SBoardServer.instance.getStorageManager().getCompanyFromMail(mail);
+        if(company != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean isExistEmployeeWithMail(String mail) {
+        Employee employee = SBoardServer.instance.getStorageManager().getEmployeeFromMail(mail);
+        if(employee != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public static Company getCompany(int id) {
+        Company company = SBoardServer.instance.getStorageManager().getCompanyFromId(id);
+        if(company != null) {
+            return company;
+        }
+        return null;
     }
 }

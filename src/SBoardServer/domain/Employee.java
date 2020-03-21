@@ -7,6 +7,7 @@ public class Employee {
     private String sName;
     private String patronymic;
     private String email;
+    private String password;
     private String phone;
     private String address;
     private String education;
@@ -15,12 +16,13 @@ public class Employee {
     private long createdTime;
     private int companyId;
 
-    public Employee(int id, String name, String sName, String patronymic, String email, String phone, String address, String education, String activities, float rate, long createdTime, int companyId) {
+    public Employee(int id, String name, String sName, String patronymic, String email, String password, String phone, String address, String education, String activities, float rate, long createdTime, int companyId) {
         this.id = id;
         this.name = name;
         this.sName = sName;
         this.patronymic = patronymic;
         this.email = email;
+        this.password = password;
         this.phone = phone;
         this.address = address;
         this.education = education;
@@ -48,6 +50,10 @@ public class Employee {
 
     public String getEmail() {
         return email;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     public String getPhone() {
