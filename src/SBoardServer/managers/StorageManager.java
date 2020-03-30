@@ -325,15 +325,50 @@ public class StorageManager {
         return companies;
     }
 
-    public void createCategory(int id, String name) {
+    public void createCategory(String name) {
         mySQL.getExecutor().submit(new Runnable() {
             @Override
             public void run() {
                 PreparedStatement statement = null;
                 try {
-                    statement = mySQL.getConnection().prepareStatement("INSERT INTO categories (id, name) VALUES (?, ?)");
+                    statement = mySQL.getConnection().prepareStatement("INSERT INTO categories (name) VALUES (?)");
+                    statement.setString(1, name);
+                    statement.execute();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } finally {
+                    close(statement);
+                }
+            }
+        });
+    }
+
+    public void deleteCategory(String name) {
+        mySQL.getExecutor().submit(new Runnable() {
+            @Override
+            public void run() {
+                PreparedStatement statement = null;
+                try {
+                    statement = mySQL.getConnection().prepareStatement("DELETE FROM categories WHERE name=?");
+                    statement.setString(1, name);
+                    statement.execute();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } finally {
+                    close(statement);
+                }
+            }
+        });
+    }
+
+    public void deleteCategory(int id) {
+        mySQL.getExecutor().submit(new Runnable() {
+            @Override
+            public void run() {
+                PreparedStatement statement = null;
+                try {
+                    statement = mySQL.getConnection().prepareStatement("DELETE FROM categories WHERE id=?");
                     statement.setInt(1, id);
-                    statement.setString(2, name);
                     statement.execute();
                 } catch (SQLException e) {
                     e.printStackTrace();
