@@ -4,6 +4,7 @@ import SBoardServer.SBoardServer;
 import SBoardServer.domain.*;
 import SBoardServer.helpers.LoggerHelper;
 import SBoardServer.utils.MySQL;
+import com.sun.org.apache.regexp.internal.RE;
 
 import java.sql.*;
 import java.util.HashMap;
@@ -295,6 +296,41 @@ public class StorageManager {
             close(statement);
         }
         return company;
+    }
+
+    public boolean isExistCompany(String login) {
+        PreparedStatement ps = null;
+        try {
+            ps = mySQL.getConnection().prepareStatement("SELECT * FROM companies WHERE email=?");
+            ps.setString(1, login);
+            ResultSet set = ps.executeQuery();
+            if(set.next()) {
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(ps);
+        }
+        return false;
+    }
+
+    public boolean companyAuth(String login, String pass) {
+        PreparedStatement ps = null;
+        try {
+            ps = mySQL.getConnection().prepareStatement("SELECT * FROM companies WHERE email=? AND password=?");
+            ps.setString(1, login);
+            ps.setString(2, pass);
+            ResultSet set = ps.executeQuery();
+            if(set.next()) {
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(ps);
+        }
+        return false;
     }
 
     public Set<Company> getCompanies() {
@@ -654,6 +690,43 @@ public class StorageManager {
         return user;
     }
 
+    public boolean isExistUser(String login) {
+        PreparedStatement ps = null;
+        try {
+            ps = mySQL.getConnection().prepareStatement("SELECT * FROM users WHERE email=? or login=?");
+            ps.setString(1, login);
+            ps.setString(2, login);
+            ResultSet set = ps.executeQuery();
+            if(set.next()) {
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(ps);
+        }
+        return false;
+    }
+
+    public boolean userAuth(String login, String pass) {
+        PreparedStatement ps = null;
+        try {
+            ps = mySQL.getConnection().prepareStatement("SELECT * FROM users WHERE (email=? OR login=?) AND password=?");
+            ps.setString(1, login);
+            ps.setString(2, login);
+            ps.setString(3, pass);
+            ResultSet set = ps.executeQuery();
+            if(set.next()) {
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(ps);
+        }
+        return false;
+    }
+
     public HashMap<String, User> getUsers() {
         HashMap<String, User> users = new HashMap<>();
         PreparedStatement statement = null;
@@ -946,6 +1019,41 @@ public class StorageManager {
             close(statement);
         }
         return employee;
+    }
+
+    public boolean isExistEmployee(String login) {
+        PreparedStatement ps = null;
+        try {
+            ps = mySQL.getConnection().prepareStatement("SELECT * FROM employees WHERE email=?");
+            ps.setString(1, login);
+            ResultSet set = ps.executeQuery();
+            if(set.next()) {
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(ps);
+        }
+        return false;
+    }
+
+    public boolean employeeAuth(String login, String pass) {
+        PreparedStatement ps = null;
+        try {
+            ps = mySQL.getConnection().prepareStatement("SELECT * FROM employees WHERE email=? AND password=?");
+            ps.setString(1, login);
+            ps.setString(2, pass);
+            ResultSet set = ps.executeQuery();
+            if(set.next()) {
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(ps);
+        }
+        return false;
     }
 
     public HashMap<String, Employee> getEmployees() {

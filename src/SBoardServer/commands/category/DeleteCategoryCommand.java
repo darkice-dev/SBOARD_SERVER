@@ -3,11 +3,12 @@ package SBoardServer.commands.category;
 import SBoardServer.SBoardServer;
 import SBoardServer.commands.AbstractCommand;
 import SBoardServer.commands.CommandException;
+import SBoardServer.helpers.LoggerHelper;
 
 import java.util.IllegalFormatException;
 
-public class DeleteCategory extends AbstractCommand {
-    public DeleteCategory(SBoardServer server, int minArgs) {
+public class DeleteCategoryCommand extends AbstractCommand {
+    public DeleteCategoryCommand(SBoardServer server, int minArgs) {
         super(server, minArgs);
     }
 
@@ -29,6 +30,7 @@ public class DeleteCategory extends AbstractCommand {
         } catch (Exception ex) {
             String name = args[0];
             getServer().getStorageManager().deleteCategory(name);
+            LoggerHelper.info(args[0] + " successful deleted");
         }
     }
 }

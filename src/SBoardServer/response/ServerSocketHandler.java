@@ -2,7 +2,6 @@ package SBoardServer.response;
 
 import SBoardServer.SBoardServer;
 import SBoardServer.helpers.LoggerHelper;
-import SBoardServer.utils.ServerConfig;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -25,6 +24,8 @@ public class ServerSocketHandler extends Thread {
 
             while (serverSocket.isBound()) {
                 Socket socket = serverSocket.accept();
+                ClientSession session = new ClientSession(socket);
+                session.start();
             }
         } catch (IOException e) {
             e.printStackTrace();

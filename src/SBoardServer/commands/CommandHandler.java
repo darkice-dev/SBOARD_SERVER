@@ -1,6 +1,9 @@
 package SBoardServer.commands;
 
 import SBoardServer.SBoardServer;
+import SBoardServer.commands.category.CategoriesListCommand;
+import SBoardServer.commands.category.CreateCategoryCommand;
+import SBoardServer.commands.category.DeleteCategoryCommand;
 import SBoardServer.commands.register.RegisterCompanyCommand;
 import SBoardServer.commands.register.RegisterEmployee;
 import SBoardServer.commands.register.RegisterUserCommand;
@@ -26,6 +29,9 @@ public class CommandHandler extends Thread {
         register("regemployee", new RegisterEmployee(server, 3));
         register("help", new HelpCommand(server, 0));
         register("stop", new StopCommand(server, 0));
+        register("addcategory", new CreateCategoryCommand(server, 1));
+        register("deletecategory", new DeleteCategoryCommand(server, 1));
+        register("categorylist", new CategoriesListCommand(server, 0));
     }
 
     public void register(String id, AbstractCommand command) {

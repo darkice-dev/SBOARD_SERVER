@@ -6,8 +6,8 @@ import SBoardServer.commands.CommandException;
 import SBoardServer.domain.Category;
 import SBoardServer.helpers.LoggerHelper;
 
-public class CreateCategory extends AbstractCommand {
-    public CreateCategory(SBoardServer server, int minArgs) {
+public class CreateCategoryCommand extends AbstractCommand {
+    public CreateCategoryCommand(SBoardServer server, int minArgs) {
         super(server, minArgs);
     }
 
@@ -24,6 +24,6 @@ public class CreateCategory extends AbstractCommand {
     @Override
     public void perform(String... args) throws CommandException {
         getServer().getStorageManager().createCategory(args[0]);
-        LoggerHelper.info(args[0] + "successful created");
+        LoggerHelper.info(args[0] + " successful created");
     }
 }
