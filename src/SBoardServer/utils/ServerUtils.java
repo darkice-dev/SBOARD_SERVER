@@ -24,7 +24,6 @@ public class ServerUtils {
         for(Byte b : bytes) {
             sb.append(String.format("%02x", b));
         }
-        System.out.println(sb.toString());
         return sb.toString();
     }
 

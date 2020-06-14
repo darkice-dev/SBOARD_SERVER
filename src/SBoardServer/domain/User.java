@@ -13,6 +13,17 @@ public class User {
     private String address;
     private long createdTime;
 
+    public User(String login, String password, String name, String sName, String patronymic, String email, String phone, String address, long createdTime) {
+        this.login = login;
+        this.password = password;
+        this.name = name;
+        this.sName = sName;
+        this.patronymic = patronymic;
+        this.email = email;
+        this.phone = phone;
+        this.address = address;
+        this.createdTime = createdTime;
+    }
     public User(int id, String login, String password, String name, String sName, String patronymic, String email, String phone, String address, long createdTime) {
         this.id = id;
         this.login = login;

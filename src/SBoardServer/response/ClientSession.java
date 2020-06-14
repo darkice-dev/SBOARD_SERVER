@@ -19,7 +19,6 @@ public class ClientSession extends Thread {
         this.socket = socket;
         dos = new DataInputStream(socket.getInputStream());
         dis = new DataOutputStream(socket.getOutputStream());
-
     }
 
 
@@ -43,6 +42,7 @@ public class ClientSession extends Thread {
                 default:
                     throw new AssertionError("Unsupported request type: " + type.name());
             }
+            System.out.println("Работает");
             try {
                 response.reply();
             } catch (Throwable throwable) {

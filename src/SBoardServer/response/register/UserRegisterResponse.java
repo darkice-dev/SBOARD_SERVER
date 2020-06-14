@@ -4,7 +4,6 @@ import SBoardServer.SBoardServer;
 import SBoardServer.helpers.LoggerHelper;
 import SBoardServer.response.Response;
 import SBoardServer.utils.ServerUtils;
-import me.Sa1ZeR_.core.request.RequestException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -18,6 +17,10 @@ public class UserRegisterResponse extends Response {
     public void reply() throws Throwable {
         String login = dis.readUTF();
         String email = dis.readUTF();
+        String name = dis.readUTF();
+        String sName = dis.readUTF();
+        String patronymic = dis.readUTF();
+        String phone = dis.readUTF();
         String pass = dis.readUTF();
         if(ServerUtils.isExistUserWithLogin(login)) {
             requestError("User with " + login + " login already exist");
@@ -28,7 +31,7 @@ public class UserRegisterResponse extends Response {
             return;
         }
 
-        SBoardServer.instance.getStorageManager().createUser(login, pass, "", "", "", email, "", "", System.currentTimeMillis());
+        SBoardServer.instance.getStorageManager().createUser(login, pass, name, sName, patronymic, email, phone, "", System.currentTimeMillis());
         LoggerHelper.info("User successful registered");
     }
 }

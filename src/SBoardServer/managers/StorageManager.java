@@ -515,7 +515,7 @@ public class StorageManager {
             statement.setInt(1, id);
             ResultSet set = statement.executeQuery();
             if(set.next()) {
-                int uId = set.getInt("id");
+                int uid = set.getInt("id");
                 String login = set.getString("login");
                 String pass = set.getString("password");
                 String name = set.getString("name");
@@ -525,7 +525,7 @@ public class StorageManager {
                 String phone = set.getString("phone");
                 String address = set.getString("address");
                 long createdTime = set.getLong("created_time");
-                user = new User(uId,login, pass, name, sName, patronymic, email, phone, address, createdTime);
+                user = new User(uid, login, pass, name, sName, patronymic, email, phone, address, createdTime);
             }
         } catch (SQLException e) {
             LoggerHelper.error("Error while getting user (id =" + id +") \n" + e);
@@ -637,7 +637,7 @@ public class StorageManager {
             statement.setString(1, patronymic);
             ResultSet set = statement.executeQuery();
             while (set.next()) {
-                int uId = set.getInt("id");
+                int uid = set.getInt("id");
                 String uLogin = set.getString("login");
                 String pass = set.getString("password");
                 String uName = set.getString("name");
@@ -647,7 +647,7 @@ public class StorageManager {
                 String phone = set.getString("phone");
                 String address = set.getString("address");
                 long createdTime = set.getLong("created_time");
-                User user = new User(uId, uLogin, pass, uName, uSName, uPatronymic, email, phone, address, createdTime);
+                User user = new User(uid, uLogin, pass, uName, uSName, uPatronymic, email, phone, address, createdTime);
                 users.add(user);
             }
         } catch (SQLException e) {
@@ -668,7 +668,7 @@ public class StorageManager {
             statement.setString(1, mail);
             ResultSet set = statement.executeQuery();
             if(set.next()) {
-                int uId = set.getInt("id");
+                int uid = set.getInt("id");
                 String uLogin = set.getString("login");
                 String pass = set.getString("password");
                 String name = set.getString("name");
@@ -678,7 +678,7 @@ public class StorageManager {
                 String phone = set.getString("phone");
                 String address = set.getString("address");
                 long createdTime = set.getLong("created_time");
-                user = new User(uId, uLogin, pass, name, sName, patronymic, uEmail, phone, address, createdTime);
+                user = new User(uid, uLogin, pass, name, sName, patronymic, uEmail, phone, address, createdTime);
             }
         } catch (SQLException e) {
             LoggerHelper.error("Error while getting user (mail =" + mail +") \n" + e);
@@ -734,7 +734,6 @@ public class StorageManager {
             statement = mySQL.getConnection().prepareStatement("SELECT * FROM users");
             ResultSet set = statement.executeQuery();
             while (set.next()) {
-                int uId = set.getInt("id");
                 String uLogin = set.getString("login");
                 String pass = set.getString("password");
                 String name = set.getString("name");
@@ -744,7 +743,7 @@ public class StorageManager {
                 String phone = set.getString("phone");
                 String address = set.getString("address");
                 long createdTime = set.getLong("created_time");
-                User user = new User(uId, uLogin, pass, name, sName, patronymic, email, phone, address, createdTime);
+                User user = new User(uLogin, pass, name, sName, patronymic, email, phone, address, createdTime);
                 users.put(name, user);
             }
         } catch (SQLException e) {
@@ -1176,6 +1175,38 @@ public class StorageManager {
                 int categoryId = set.getInt("categories_id");
                 Service service = new Service(sId, sName, price, employeeId, categoryId);
                 services.add(service);
+            }
+        } catch (SQLException e) {
+            LoggerHelper.error("Error while getting service \n" + e);
+            e.printStackTrace();
+        }
+        finally {
+            close(statement);
+        }
+        return services;
+    }
+
+    public Set<Service> getServiceByUserId(int id) {
+        PreparedStatement statement = null;
+        Set<Service> services = new HashSet<>();
+        try {
+            statement = mySQL.getConnection().prepareStatement("SELECT * FROM timetable WHERE users_id=?");
+            statement.setInt(1, id);
+            ResultSet set = statement.executeQuery();
+            while (set.next()) {
+                int sId = set.getInt("services_id");
+                statement = mySQL.getConnection().prepareStatement("SELECT * FROM timetable WHERE users_id=?");
+                statement.setInt(1, sId);
+                ResultSet set1 = statement.executeQuery();
+                while (set1.next()) {
+                    int ssId = set.getInt("id");
+                    String sName = set.getString("name");
+                    double price = set.getDouble("price");
+                    int employeeId = set.getInt("employee_id");
+                    int categoryId = set.getInt("categories_id");
+                    Service service = new Service(ssId, sName, price, employeeId, categoryId);
+                    services.add(service);
+                }
             }
         } catch (SQLException e) {
             LoggerHelper.error("Error while getting service \n" + e);

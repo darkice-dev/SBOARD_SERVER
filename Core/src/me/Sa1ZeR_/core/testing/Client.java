@@ -4,11 +4,8 @@ package me.Sa1ZeR_.core.testing;
 import me.Sa1ZeR_.core.request.Request;
 import me.Sa1ZeR_.core.request.RequestException;
 import me.Sa1ZeR_.core.request.auth.UserAuthRequest;
-import me.Sa1ZeR_.core.request.register.UserRegisterRequest;
 
-import java.io.*;
 import java.net.InetAddress;
-import java.net.Socket;
 
 public class Client {
     private final InetAddress host;

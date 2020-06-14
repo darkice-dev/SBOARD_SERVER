@@ -7,8 +7,11 @@ import SBoardServer.commands.category.DeleteCategoryCommand;
 import SBoardServer.commands.register.RegisterCompanyCommand;
 import SBoardServer.commands.register.RegisterEmployee;
 import SBoardServer.commands.register.RegisterUserCommand;
+import SBoardServer.commands.services.GetUserServiceCommand;
 import SBoardServer.commands.specialcommands.HelpCommand;
 import SBoardServer.commands.specialcommands.StopCommand;
+import SBoardServer.commands.statistic.GetCompanyStatisticCommand;
+import SBoardServer.commands.statistic.GetEmployeeStatisticCommand;
 import SBoardServer.helpers.LoggerHelper;
 
 import java.io.BufferedReader;
@@ -32,6 +35,9 @@ public class CommandHandler extends Thread {
         register("addcategory", new CreateCategoryCommand(server, 1));
         register("deletecategory", new DeleteCategoryCommand(server, 1));
         register("categorylist", new CategoriesListCommand(server, 0));
+        register("employeerating", new GetEmployeeStatisticCommand(server, 1));
+        register("companyrating", new GetCompanyStatisticCommand(server, 1));
+        register("userservices", new GetUserServiceCommand(server, 1));
     }
 
     public void register(String id, AbstractCommand command) {
